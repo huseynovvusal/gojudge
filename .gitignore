@@ -1,0 +1,64 @@
+# Go build artifacts
+/bin/
+/build/
+/dist/
+/out/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Go workspace file
+go.work
+
+# Go module files
+go.sum
+
+# Vendor directory
+/vendor/
+
+# IDE/editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.bak
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.*
+
+# Docker files
+*.pid
+docker-compose.override.yml
+
+# Docker volumes
+volumes/
+data/
+tmp/
+
+# Node modules (if using frontend)
+node_modules/
+
+# Coverage reports
+coverage/
+*.coverprofile
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Test cache
+*.cache
+
+# Misc
+*.tgz
+*.gz
+*.zip
+*.tar
