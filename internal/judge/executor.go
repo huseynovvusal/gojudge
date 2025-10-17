@@ -14,7 +14,12 @@ import (
 	"github.com/docker/docker/client"
 )
 
-func RunCode(language string, code string) (string, error) {
+type ExecutionResult struct {
+	Output      string
+	ExecutionMs int64
+}
+
+func RunCode(language string, code string) (ExecutionResult, error) {
 	var (
 		sourceFile string
 		image      string
@@ -30,31 +35,35 @@ func RunCode(language string, code string) (string, error) {
 		sourceFile = "submission.cpp"
 		image = "gcc:13.2.0"
 		cmd = []string{"/bin/sh", "-c", "g++ /app/" + sourceFile + " -o /app/a.out && /app/a.out"}
+	case "c":
+		sourceFile = "submission.c"
+		image = "gcc:13.2.0"
+		cmd = []string{"/bin/sh", "-c", "gcc /app/" + sourceFile + " -o /app/a.out && /app/a.out"}
 	default:
-		return "", fmt.Errorf("unsupported language: %s", language)
+		return ExecutionResult{}, fmt.Errorf("unsupported language: %s", language)
 	}
 
 	ctx := context.Background()
 
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
-		return "", err
+		return ExecutionResult{}, err
 	}
 
 	tmpFile, err := os.CreateTemp("", "submission-*."+filepath.Ext(sourceFile)[1:])
 	if err != nil {
-		return "", err
+		return ExecutionResult{}, err
 	}
 
 	defer os.Remove(tmpFile.Name())
 
 	if _, err := tmpFile.WriteString(code); err != nil {
 		tmpFile.Close()
-		return "", err
+		return ExecutionResult{}, err
 	}
 
 	if err := tmpFile.Close(); err != nil {
-		return "", err
+		return ExecutionResult{}, err
 	}
 
 	res, err := cli.ContainerCreate(ctx, &container.Config{
@@ -75,7 +84,7 @@ func RunCode(language string, code string) (string, error) {
 		},
 	}, nil, nil, "")
 	if err != nil {
-		return "", err
+		return ExecutionResult{}, err
 	}
 
 	defer func() {
@@ -85,7 +94,7 @@ func RunCode(language string, code string) (string, error) {
 	// start timer and run the container
 	start := time.Now()
 	if err := cli.ContainerStart(ctx, res.ID, container.StartOptions{}); err != nil {
-		return "", err
+		return ExecutionResult{}, err
 	}
 
 	timeout := time.After(10 * time.Second)
@@ -109,21 +118,23 @@ func RunCode(language string, code string) (string, error) {
 	case <-done:
 	case <-timeout:
 		cli.ContainerKill(ctx, res.ID, "SIGKILL")
-		return logs.String(), fmt.Errorf("execution timeout")
+		return ExecutionResult{}, fmt.Errorf("execution timeout")
 	}
 
 	statusCh, errCh := cli.ContainerWait(ctx, res.ID, container.WaitConditionNotRunning)
 	select {
 	case err := <-errCh:
 		if err != nil {
-			return logs.String(), err
+			return ExecutionResult{}, err
 		}
 	case <-statusCh:
 	}
 
 	elapsedMs := time.Since(start).Milliseconds()
-	fmt.Printf("execution took %d ms\n", elapsedMs)
 
-	return logs.String() + fmt.Sprintf("\nExecution time: %d ms", elapsedMs), nil
+	return ExecutionResult{
+		Output:      logs.String(),
+		ExecutionMs: elapsedMs,
+	}, nil
 
 }
