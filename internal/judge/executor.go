@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/docker/docker/api/types/container"
@@ -14,6 +15,25 @@ import (
 )
 
 func RunCode(language string, code string) (string, error) {
+	var (
+		sourceFile string
+		image      string
+		cmd        []string
+	)
+
+	switch language {
+	case "python":
+		sourceFile = "submission.py"
+		image = "python:3.12-alpine"
+		cmd = []string{"python", "/app/" + sourceFile}
+	case "cpp":
+		sourceFile = "submission.cpp"
+		image = "gcc:13.2.0"
+		cmd = []string{"/bin/sh", "-c", "g++ /app/" + sourceFile + " -o /app/a.out && /app/a.out"}
+	default:
+		return "", fmt.Errorf("unsupported language: %s", language)
+	}
+
 	ctx := context.Background()
 
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
@@ -21,34 +41,37 @@ func RunCode(language string, code string) (string, error) {
 		return "", err
 	}
 
-	tmpFile, err := os.CreateTemp("", "submission-*.py")
+	tmpFile, err := os.CreateTemp("", "submission-*."+filepath.Ext(sourceFile)[1:])
 	if err != nil {
 		return "", err
 	}
+
 	defer os.Remove(tmpFile.Name())
+
 	if _, err := tmpFile.WriteString(code); err != nil {
 		tmpFile.Close()
 		return "", err
 	}
+
 	if err := tmpFile.Close(); err != nil {
 		return "", err
 	}
 
 	res, err := cli.ContainerCreate(ctx, &container.Config{
-		Image: "python:3.12-slim",
-		Cmd:   []string{"python", "/app/submission.py"},
+		Image: image,
+		Cmd:   cmd,
 		Tty:   false,
 	}, &container.HostConfig{
 		Mounts: []mount.Mount{
 			{
 				Type:   mount.TypeBind,
 				Source: tmpFile.Name(),
-				Target: "/app/submission.py",
+				Target: "/app/" + sourceFile,
 			},
 		},
 		Resources: container.Resources{
-			Memory:   512 * 1024 * 1024, // 512 MB
-			NanoCPUs: 50000000,          // 0.5 CPU
+			Memory:   256 * 1024 * 1024, // 256 MB
+			NanoCPUs: 500000000,         // 0.5 CPU
 		},
 	}, nil, nil, "")
 	if err != nil {
@@ -65,7 +88,7 @@ func RunCode(language string, code string) (string, error) {
 		return "", err
 	}
 
-	timeout := time.After(1 * time.Second)
+	timeout := time.After(10 * time.Second)
 	done := make(chan struct{})
 	var logs bytes.Buffer
 
