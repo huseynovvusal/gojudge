@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 	"time"
 )
 
@@ -12,14 +13,14 @@ type ExecutionResult struct {
 	ExecutionMs int64
 }
 
-func RunCode(language string, code string, timeLimit int16, memoryLimit int16, cpuLimit int16) (ExecutionResult, error) {
+func RunCode(language string, code string, input string, timeLimit int16, memoryLimit int16, cpuLimit int16) (ExecutionResult, error) {
 	switch language {
 	case "python":
-		return RunPythonWithNsjail(code, timeLimit, memoryLimit, cpuLimit)
+		return RunPythonWithNsjail(code, input, timeLimit, memoryLimit, cpuLimit)
 	case "c":
-		return RunCWithNsjail(code, timeLimit, memoryLimit, cpuLimit)
+		return RunCWithNsjail(code, input, timeLimit, memoryLimit, cpuLimit)
 	case "cpp":
-		return RunCppWithNsjail(code, timeLimit, memoryLimit, cpuLimit)
+		return RunCppWithNsjail(code, input, timeLimit, memoryLimit, cpuLimit)
 	default:
 		return ExecutionResult{}, fmt.Errorf("unsupported language: %s", language)
 	}
@@ -28,7 +29,7 @@ func RunCode(language string, code string, timeLimit int16, memoryLimit int16, c
 // RunPythonWithNsjail runs Python code using nsjail with specified resource limits.
 // timeLimit, memoryLimit, and cpuLimit are in seconds and megabytes.
 // Returns the output and execution time in milliseconds.
-func RunPythonWithNsjail(code string, timeLimit int16, memoryLimit int16, cpuLimit int16) (ExecutionResult, error) {
+func RunPythonWithNsjail(code string, input string, timeLimit int16, memoryLimit int16, cpuLimit int16) (ExecutionResult, error) {
 	tmpFile, _ := os.CreateTemp("", "submission-*.py")
 	defer os.Remove(tmpFile.Name())
 	tmpFile.WriteString(code)
@@ -49,10 +50,14 @@ func RunPythonWithNsjail(code string, timeLimit int16, memoryLimit int16, cpuLim
 		"--rlimit_as", memStr,
 		"--rlimit_cpu", cpuStr,
 		"--time_limit", timeStr,
-		"--log", "error", // Log only errors
+		"--log", "error",
 		"--",
-		"/usr/bin/python3", tmpFile.Name(),
+		"/usr/bin/python3",
+
+		tmpFile.Name(),
 	)
+
+	cmd.Stdin = strings.NewReader(input)
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -68,7 +73,7 @@ func RunPythonWithNsjail(code string, timeLimit int16, memoryLimit int16, cpuLim
 
 }
 
-func RunCWithNsjail(code string, timeLimit int16, memoryLimit int16, cpuLimit int16) (ExecutionResult, error) {
+func RunCWithNsjail(code string, input string, timeLimit int16, memoryLimit int16, cpuLimit int16) (ExecutionResult, error) {
 	srcFile, _ := os.CreateTemp("", "submission-*.c")
 	defer os.Remove(srcFile.Name())
 	srcFile.WriteString(code)
@@ -92,9 +97,12 @@ func RunCWithNsjail(code string, timeLimit int16, memoryLimit int16, cpuLimit in
 		"--rlimit_as", memStr,
 		"--rlimit_cpu", cpuStr,
 		"--time_limit", timeStr,
+		"--log", "error",
 		"--",
-		srcFile.Name(),
+		binPath,
 	)
+
+	cmd.Stdin = strings.NewReader(input)
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -110,7 +118,7 @@ func RunCWithNsjail(code string, timeLimit int16, memoryLimit int16, cpuLimit in
 
 }
 
-func RunCppWithNsjail(code string, timeLimit int16, memoryLimit int16, cpuLimit int16) (ExecutionResult, error) {
+func RunCppWithNsjail(code string, input string, timeLimit int16, memoryLimit int16, cpuLimit int16) (ExecutionResult, error) {
 	srcFile, _ := os.CreateTemp("", "submission-*.cpp")
 	defer os.Remove(srcFile.Name())
 	srcFile.WriteString(code)
@@ -134,9 +142,12 @@ func RunCppWithNsjail(code string, timeLimit int16, memoryLimit int16, cpuLimit 
 		"--rlimit_as", memStr,
 		"--rlimit_cpu", cpuStr,
 		"--time_limit", timeStr,
+		"--log", "error",
 		"--",
-		srcFile.Name(),
+		binPath,
 	)
+
+	cmd.Stdin = strings.NewReader(input)
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {

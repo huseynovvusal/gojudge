@@ -4,7 +4,6 @@ services:
   judge:
     build: .
     container_name: judge_service
-    # restart: unless-stopped
     ports:
       - "8080:8080"
     networks:
