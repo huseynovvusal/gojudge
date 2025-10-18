@@ -62,3 +62,8 @@ Thumbs.db
 *.gz
 *.zip
 *.tar
+
+# NSJail logs
+nsjail.log
+executor.log
+error
