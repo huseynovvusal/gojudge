@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  judge:
+    build: .
+    container_name: judge_service
+    # restart: unless-stopped
+    ports:
+      - "8080:8080"
+    networks:
+      - judge_network
+
+networks:
+  default:
+    driver: bridge
+  judge_network:
+    driver: bridge
