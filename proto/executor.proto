@@ -5,7 +5,7 @@ package executor;
 option go_package = "/internal/proto/";
 
 service ExecutorService {
-  rpc RunCode (ExecutorRequest) returns (ExecutorResponse) {}
+  rpc Execute (ExecutorRequest) returns (ExecutorResponse) {}
 }
 
 message ExecutorRequest {
@@ -19,8 +19,7 @@ message ExecutorRequest {
 
 message ExecutorResponse {
     string output = 1;
-    string error = 2;
-    int64 execution_time = 3; // in milliseconds
-    // int64 memory_used = 4;    // in bytes
-    // int32 exit_code = 5;
+    int64 execution_time = 2; // in milliseconds
+    // int64 memory_used = 3;    // in bytes
+    // int32 exit_code = 4;
 }

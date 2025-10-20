@@ -19,14 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ExecutorService_RunCode_FullMethodName = "/executor.ExecutorService/RunCode"
+	ExecutorService_Execute_FullMethodName = "/executor.ExecutorService/Execute"
 )
 
 // ExecutorServiceClient is the client API for ExecutorService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ExecutorServiceClient interface {
-	RunCode(ctx context.Context, in *ExecutorRequest, opts ...grpc.CallOption) (*ExecutorResponse, error)
+	Execute(ctx context.Context, in *ExecutorRequest, opts ...grpc.CallOption) (*ExecutorResponse, error)
 }
 
 type executorServiceClient struct {
@@ -37,10 +37,10 @@ func NewExecutorServiceClient(cc grpc.ClientConnInterface) ExecutorServiceClient
 	return &executorServiceClient{cc}
 }
 
-func (c *executorServiceClient) RunCode(ctx context.Context, in *ExecutorRequest, opts ...grpc.CallOption) (*ExecutorResponse, error) {
+func (c *executorServiceClient) Execute(ctx context.Context, in *ExecutorRequest, opts ...grpc.CallOption) (*ExecutorResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ExecutorResponse)
-	err := c.cc.Invoke(ctx, ExecutorService_RunCode_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, ExecutorService_Execute_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func (c *executorServiceClient) RunCode(ctx context.Context, in *ExecutorRequest
 // All implementations must embed UnimplementedExecutorServiceServer
 // for forward compatibility.
 type ExecutorServiceServer interface {
-	RunCode(context.Context, *ExecutorRequest) (*ExecutorResponse, error)
+	Execute(context.Context, *ExecutorRequest) (*ExecutorResponse, error)
 	mustEmbedUnimplementedExecutorServiceServer()
 }
 
@@ -62,8 +62,8 @@ type ExecutorServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedExecutorServiceServer struct{}
 
-func (UnimplementedExecutorServiceServer) RunCode(context.Context, *ExecutorRequest) (*ExecutorResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RunCode not implemented")
+func (UnimplementedExecutorServiceServer) Execute(context.Context, *ExecutorRequest) (*ExecutorResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Execute not implemented")
 }
 func (UnimplementedExecutorServiceServer) mustEmbedUnimplementedExecutorServiceServer() {}
 func (UnimplementedExecutorServiceServer) testEmbeddedByValue()                         {}
@@ -86,20 +86,20 @@ func RegisterExecutorServiceServer(s grpc.ServiceRegistrar, srv ExecutorServiceS
 	s.RegisterService(&ExecutorService_ServiceDesc, srv)
 }
 
-func _ExecutorService_RunCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ExecutorService_Execute_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ExecutorRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ExecutorServiceServer).RunCode(ctx, in)
+		return srv.(ExecutorServiceServer).Execute(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ExecutorService_RunCode_FullMethodName,
+		FullMethod: ExecutorService_Execute_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ExecutorServiceServer).RunCode(ctx, req.(*ExecutorRequest))
+		return srv.(ExecutorServiceServer).Execute(ctx, req.(*ExecutorRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -112,8 +112,8 @@ var ExecutorService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ExecutorServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "RunCode",
-			Handler:    _ExecutorService_RunCode_Handler,
+			MethodName: "Execute",
+			Handler:    _ExecutorService_Execute_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

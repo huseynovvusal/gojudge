@@ -108,8 +108,7 @@ func (x *ExecutorRequest) GetCpuLimit() int32 {
 type ExecutorResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Output        string                 `protobuf:"bytes,1,opt,name=output,proto3" json:"output,omitempty"`
-	Error         string                 `protobuf:"bytes,2,opt,name=error,proto3" json:"error,omitempty"`
-	ExecutionTime int64                  `protobuf:"varint,3,opt,name=execution_time,json=executionTime,proto3" json:"execution_time,omitempty"` // in milliseconds
+	ExecutionTime int64                  `protobuf:"varint,2,opt,name=execution_time,json=executionTime,proto3" json:"execution_time,omitempty"` // in milliseconds
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -151,13 +150,6 @@ func (x *ExecutorResponse) GetOutput() string {
 	return ""
 }
 
-func (x *ExecutorResponse) GetError() string {
-	if x != nil {
-		return x.Error
-	}
-	return ""
-}
-
 func (x *ExecutorResponse) GetExecutionTime() int64 {
 	if x != nil {
 		return x.ExecutionTime
@@ -177,13 +169,12 @@ const file_proto_executor_proto_rawDesc = "" +
 	"\n" +
 	"time_limit\x18\x04 \x01(\x05R\ttimeLimit\x12!\n" +
 	"\fmemory_limit\x18\x05 \x01(\x05R\vmemoryLimit\x12\x1b\n" +
-	"\tcpu_limit\x18\x06 \x01(\x05R\bcpuLimit\"g\n" +
+	"\tcpu_limit\x18\x06 \x01(\x05R\bcpuLimit\"Q\n" +
 	"\x10ExecutorResponse\x12\x16\n" +
-	"\x06output\x18\x01 \x01(\tR\x06output\x12\x14\n" +
-	"\x05error\x18\x02 \x01(\tR\x05error\x12%\n" +
-	"\x0eexecution_time\x18\x03 \x01(\x03R\rexecutionTime2U\n" +
+	"\x06output\x18\x01 \x01(\tR\x06output\x12%\n" +
+	"\x0eexecution_time\x18\x02 \x01(\x03R\rexecutionTime2U\n" +
 	"\x0fExecutorService\x12B\n" +
-	"\aRunCode\x12\x19.executor.ExecutorRequest\x1a\x1a.executor.ExecutorResponse\"\x00B\x12Z\x10/internal/proto/b\x06proto3"
+	"\aExecute\x12\x19.executor.ExecutorRequest\x1a\x1a.executor.ExecutorResponse\"\x00B\x12Z\x10/internal/proto/b\x06proto3"
 
 var (
 	file_proto_executor_proto_rawDescOnce sync.Once
@@ -203,8 +194,8 @@ var file_proto_executor_proto_goTypes = []any{
 	(*ExecutorResponse)(nil), // 1: executor.ExecutorResponse
 }
 var file_proto_executor_proto_depIdxs = []int32{
-	0, // 0: executor.ExecutorService.RunCode:input_type -> executor.ExecutorRequest
-	1, // 1: executor.ExecutorService.RunCode:output_type -> executor.ExecutorResponse
+	0, // 0: executor.ExecutorService.Execute:input_type -> executor.ExecutorRequest
+	1, // 1: executor.ExecutorService.Execute:output_type -> executor.ExecutorResponse
 	1, // [1:2] is the sub-list for method output_type
 	0, // [0:1] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name

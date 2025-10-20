@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"huseynovvusal/gojudge/internal/executor"
 	pb "huseynovvusal/gojudge/internal/proto"
 	"net"
 
@@ -34,6 +36,20 @@ import (
 
 type server struct {
 	pb.UnimplementedExecutorServiceServer
+}
+
+func (*server) Execute(ctx context.Context, req *pb.ExecutorRequest) (*pb.ExecutorResponse, error) {
+	result, err := executor.RunCode(req.Language, req.Code, req.Input, int16(req.TimeLimit), int16(req.MemoryLimit), int16(req.CpuLimit))
+
+	if err != nil {
+		return &pb.ExecutorResponse{}, err
+	}
+
+	return &pb.ExecutorResponse{
+		Output:        result.Output,
+		ExecutionTime: result.ExecutionMs,
+	}, nil
+
 }
 
 func main() {
