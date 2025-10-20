@@ -1,0 +1,26 @@
+syntax = 'proto3';
+
+package executor;
+
+option go_package = "/internal/proto/";
+
+service ExecutorService {
+  rpc RunCode (ExecutorRequest) returns (ExecutorResponse) {}
+}
+
+message ExecutorRequest {
+  string code = 1;
+  string input = 2;
+  string language = 3;
+  int32 time_limit = 4;
+  int32 memory_limit = 5;
+  int32 cpu_limit = 6;
+}
+
+message ExecutorResponse {
+    string output = 1;
+    string error = 2;
+    int64 execution_time = 3; // in milliseconds
+    // int64 memory_used = 4;    // in bytes
+    // int32 exit_code = 5;
+}
