@@ -82,7 +82,13 @@ func RunCWithNsjail(code string, input string, timeLimit int16, memoryLimit int1
 	srcFile.Close()
 
 	binPath := srcFile.Name() + ".out"
-	exec.Command("gcc", srcFile.Name(), "-o", binPath).Run()
+	buildOutput, buildErr := exec.Command("gcc", srcFile.Name(), "-o", binPath).CombinedOutput()
+	if buildErr != nil {
+		return ExecutionResult{
+			Output:      string(buildOutput),
+			ExecutionMs: 0,
+		}, buildErr
+	}
 	defer os.Remove(binPath)
 
 	memStr := fmt.Sprintf("%d", memoryLimit)
@@ -127,7 +133,13 @@ func RunCppWithNsjail(code string, input string, timeLimit int16, memoryLimit in
 	srcFile.Close()
 
 	binPath := srcFile.Name() + ".out"
-	exec.Command("g++", srcFile.Name(), "-o", binPath).Run()
+	buildOutput, buildErr := exec.Command("g++", srcFile.Name(), "-o", binPath).CombinedOutput()
+	if buildErr != nil {
+		return ExecutionResult{
+			Output:      string(buildOutput),
+			ExecutionMs: 0,
+		}, buildErr
+	}
 	defer os.Remove(binPath)
 
 	memStr := fmt.Sprintf("%d", memoryLimit)

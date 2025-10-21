@@ -18,7 +18,12 @@ func (*server) Execute(ctx context.Context, req *pb.ExecutorRequest) (*pb.Execut
 	result, err := executor.RunCode(req.Language, req.Code, req.Input, int16(req.TimeLimit), int16(req.MemoryLimit), int16(req.CpuLimit))
 
 	if err != nil {
-		return &pb.ExecutorResponse{}, err
+		fmt.Println("Execution error:", err, "Output:", result.Output)
+
+		return &pb.ExecutorResponse{
+			Output:        result.Output,
+			ExecutionTime: result.ExecutionMs,
+		}, err
 	}
 
 	return &pb.ExecutorResponse{
