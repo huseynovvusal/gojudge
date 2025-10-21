@@ -1,16 +1,13 @@
 version: "3.9"
 
 services:
-  judge:
+  server:
     build: .
-    container_name: judge_service
+    container_name: gojudge-server
     ports:
-      - "8080:8080"
-    networks:
-      - judge_network
+      - "50051:50051"
+    privileged: true
 
 networks:
   default:
-    driver: bridge
-  judge_network:
     driver: bridge
