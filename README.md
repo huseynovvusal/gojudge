@@ -126,6 +126,15 @@ grpcurl -plaintext -d '{"code":"print(\"Hello, World!\")","input":"","language":
 
 ## Contributing 🤝
 
+We welcome contributions from everyone! Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on how to get started, code style, submitting pull requests, and our review process.
+
+- **Issues & Suggestions:** Open an issue for bugs, feature requests, or questions.
+- **Pull Requests:** Fork the repo, create a feature branch, and submit a PR. All contributions are reviewed and discussed before merging.
+- **Code Style:** Follow the conventions described in CONTRIBUTING.md for consistency and quality.
+- **Communication:** Be respectful and constructive in all interactions.
+
+---
+
 Pull requests and issues are welcome! For major changes, please open an issue first to discuss what you would like to change.
 
 ---
